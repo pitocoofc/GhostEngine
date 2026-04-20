@@ -2,30 +2,49 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background: #0a0a0a; color: #fff; margin: 0; font-family: monospace; display: flex; flex-direction: column; height: 100vh; }
-        .editor-container { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; border-top: 1px solid #222; }
-        textarea { background: #000; color: #3b82f6; border: none; padding: 10px; resize: none; border-right: 1px solid #222; }
-        #preview { background: #fff; border: none; width: 100%; height: 100%; }
-        .toolbar { padding: 10px; background: #111; display: flex; gap: 10px; }
-        button { background: #3b82f6; color: #fff; border: none; padding: 5px 15px; cursor: pointer; border-radius: 4px; }
+        body { background: #000; color: #fff; margin: 0; font-family: monospace; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Abas */
+        .tabs { display: flex; background: #111; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: #222; color: #888; cursor: pointer; }
+        .tab-btn.active { background: #000; color: #3b82f6; border-bottom: 2px solid #3b82f6; }
+
+        /* Área do Editor */
+        #editor-wrapper { flex-grow: 1; position: relative; }
+        .editor-pane { width: 100%; height: 100%; display: none; }
+        .editor-pane.active { display: block; }
+        
+        textarea { width: 100%; height: 100%; background: #000; color: #3b82f6; border: none; padding: 15px; outline: none; font-size: 16px; }
+
+        /* Preview (Viewport) */
+        #viewport { display: none; position: fixed; inset: 0; background: #fff; z-index: 999; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .close-btn { position: absolute; top: 10px; right: 10px; z-index: 1000; background: red; color: #fff; border: none; padding: 10px; }
     </style>
 </head>
 <body>
-    <div class="toolbar">
-        <button onclick="runCode()">RODAR [▶]</button>
-        <span style="font-size: 12px; color: #555;">GHOST_IDE_V1.0</span>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('html')">HTML</button>
+        <button class="tab-btn" onclick="switchTab('css')">CSS</button>
+        <button class="tab-btn" onclick="switchTab('js')">JS</button>
     </div>
-    
-    <div class="editor-container">
-        <div style="display: flex; flex-direction: column;">
-            <textarea id="htmlCode" placeholder="HTML aqui..."><h1>Hello World</h1></textarea>
-            <textarea id="cssCode" placeholder="CSS aqui...">h1 { color: blue; }</textarea>
-            <textarea id="jsCode" placeholder="JS aqui...">console.log('GhostIDE rodando...');</textarea>
-        </div>
+
+    <div id="editor-wrapper">
+        <div class="editor-pane active" id="pane-html"><textarea id="htmlCode" placeholder="HTML..."></textarea></div>
+        <div class="editor-pane" id="pane-css"><textarea id="cssCode" placeholder="CSS..."></textarea></div>
+        <div class="editor-pane" id="pane-js"><textarea id="jsCode" placeholder="JS..."></textarea></div>
+    </div>
+
+    <button style="width: 100%; padding: 15px; background: #3b82f6; border: none; color: white; font-weight: bold;" onclick="runCode()">RODAR</button>
+
+    <div id="viewport">
+        <button class="close-btn" onclick="closePreview()">FECHAR</button>
         <iframe id="preview"></iframe>
     </div>
 
-    <script src="compiler.js"></script>
+    <script src="ghost-ide.js"></script>
 </body>
 </html>
