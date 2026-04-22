@@ -1,3 +1,15 @@
+const commands = {};
+
+async function loadCommands() {
+    const res = await fetch('./cmd/manifest.json');
+    const data = await res.json();
+
+    for (let cmd of data.commands) {
+        const module = await import(`./cmd/${cmd}.js`);
+        commands[cmd] = module.run;
+    }
+}
+
 // Troca de abas
 function switchTab(lang) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
