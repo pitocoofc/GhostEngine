@@ -1,60 +1,77 @@
 // Troca de abas
 function switchTab(lang) {
-document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-document.querySelectorAll('.editor-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.editor-pane').forEach(p => p.classList.remove('active'));
 
-document.querySelector(`[onclick="switchTab('${lang}')"]`).classList.add('active');  
-document.getElementById(`pane-${lang}`).classList.add('active');
-
+    const tabBtn = document.querySelector(`[onclick="switchTab('${lang}')"]`);
+    const pane = document.getElementById(`pane-${lang}`);
+    
+    if (tabBtn) tabBtn.classList.add('active');
+    if (pane) pane.classList.add('active');
 }
 
-// Preview
-// Função auxiliar para buscar e traduzir (ou carregar) o comando
+// Função auxiliar para buscar o arquivo do comando
 async function fetchCommand(commandName) {
     try {
-        // Exemplo: busca o arquivo na pasta /commands/
         const response = await fetch(`/commands/${commandName}.js`);
-        if (!response.ok) throw new Error("Comando não encontrado");
+        if (!response.ok) throw new Error(`Comando ${commandName} não encontrado`);
         
-        const code = await response.text();
-        
-        // Aqui você pode adicionar uma camada de tradução, 
-        // se o seu "idioma" for uma linguagem customizada.
-        // Se for já JS, ele apenas retorna o conteúdo.
-        return code; 
+        return await response.text();
     } catch (err) {
         console.error(err);
-        return `// Erro ao carregar comando ${commandName}`;
+        return `console.error("Erro ao carregar comando: ${commandName}");`;
     }
 }
 
-// Preview atualizado
+// Preview atualizado e revisado
 async function runCode() {
     const html = document.getElementById('htmlCode').value;
     const css = document.getElementById('cssCode').value;
     let js = document.getElementById('jsCode').value;
 
-    // Regex simples para procurar comandos personalizados, ex: @comando()
+    // Regex para capturar @comando()
     const commandRegex = /@(\w+)\(\)/g;
     const matches = [...js.matchAll(commandRegex)];
 
+    // Processa os comandos de trás para frente ou sequencialmente
+    // Usamos um loop for...of para lidar corretamente com o await
     for (const match of matches) {
-        const fullMatch = match[0];
-        const commandName = match[1];
+        const [fullMatch, commandName] = match;
         
-        // Busca o código do comando
         const commandCode = await fetchCommand(commandName);
         
-        // Substitui a chamada do comando pelo código traduzido/carregado
-        js = js.replace(fullMatch, `(function() { ${commandCode} })()`);
+        // Usamos replaceAll para garantir que todas as ocorrências do comando sejam trocadas
+        // Envolvemos em uma IIFE para isolar o escopo do código importado
+        const replacement = `(function() { 
+            ${commandCode} 
+        })();`;
+        
+        js = js.replaceAll(fullMatch, replacement);
     }
 
     const frame = document.getElementById('preview');
-    frame.srcdoc = `<html><head><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`;  
+    // Injetamos o código garantindo que o srcdoc processe as quebras de linha corretamente
+    frame.srcdoc = `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <style>${css}</style>
+            </head>
+            <body>
+                ${html}
+                <script>
+                    try {
+                        ${js}
+                    } catch (e) {
+                        console.error("Erro na execução do script:", e);
+                    }
+                <\/script>
+            </body>
+        </html>`;
+    
     document.getElementById('viewport').style.display = 'block';
 }
 
-
 function closePreview() {
-document.getElementById('viewport').style.display = 'none';
+    document.getElementById('viewport').style.display = 'none';
 }
