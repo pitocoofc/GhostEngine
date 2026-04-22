@@ -8,16 +8,17 @@ function switchTab(lang) {
 }
 
 // Preview
-function runCode() {
+async function runCode() {
+    await loadCommands();
+
     let html = document.getElementById('htmlCode').value;
     const css = document.getElementById('cssCode').value;
     const js = document.getElementById('jsCode').value;
 
-    // 🔥 processa sua engine
     html = parseGhostHTML(html);
 
     const frame = document.getElementById('preview');
-    
+
     frame.srcdoc = `
         <html>
         <head>
