@@ -33,7 +33,6 @@ async function runCode() {
 
     document.getElementById('viewport').style.display = 'block';
 }
-
 function closePreview() {
     document.getElementById('viewport').style.display = 'none';
 }
