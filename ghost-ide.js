@@ -9,12 +9,27 @@ function switchTab(lang) {
 
 // Preview
 function runCode() {
-    const html = document.getElementById('htmlCode').value;
+    let html = document.getElementById('htmlCode').value;
     const css = document.getElementById('cssCode').value;
     const js = document.getElementById('jsCode').value;
+
+    // 🔥 processa sua engine
+    html = parseGhostHTML(html);
+
     const frame = document.getElementById('preview');
     
-    frame.srcdoc = `<html><head><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`;
+    frame.srcdoc = `
+        <html>
+        <head>
+            <style>${css}</style>
+        </head>
+        <body>
+            ${html}
+            <script>${js}<\/script>
+        </body>
+        </html>
+    `;
+
     document.getElementById('viewport').style.display = 'block';
 }
 
