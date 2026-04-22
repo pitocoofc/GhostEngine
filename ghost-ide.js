@@ -21,13 +21,11 @@ function switchTab(lang) {
 
 // Preview
 async function runCode() {
-    await loadCommands();
+    console.log("clicou");
 
     let html = document.getElementById('htmlCode').value;
     const css = document.getElementById('cssCode').value;
     const js = document.getElementById('jsCode').value;
-
-    html = parseGhostHTML(html);
 
     const frame = document.getElementById('preview');
 
